@@ -1,5 +1,6 @@
 
 #include "logger/logger.hpp"
+#include "connManager/connManager.h"
 
 int main()
 {
@@ -12,4 +13,8 @@ int main()
                     << "this is info log");
     __LOG(debug, "hello logger!"
                      << "this is debug log");
+
+
+
+
 }
