@@ -10,7 +10,7 @@ int main()
 	ConnInfo info;
 	info.type = 0;
 
-	connManager<connInterface<ConnInfo>, ConnInfo> *tmp_comm = new connManager<connInterface<ConnInfo>, ConnInfo>();
+	connManager<RedisConn<ConnInfo>, ConnInfo> *tmp_comm = new connManager<RedisConn<ConnInfo>, ConnInfo>();
 	tmp_comm->add_pool();
 	tmp_comm->add_pool();
 	tmp_comm->add_pool();

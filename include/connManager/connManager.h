@@ -45,7 +45,7 @@ class connManager
     {
         return get_pool()->get_conn();
     }
-    
+
     bool add_conn(connInfo info)
     {
         infoList.emplace_back(info);
@@ -55,12 +55,12 @@ class connManager
         }
         return true;
     }
-    bool delete_conn(connInfo info)
+    bool del_conn(connInfo info)
     {
         infoList.erase(info);
         for (auto tmp : poolList)
         {
-            tmp->add_conn(info);
+            tmp->del_conn(info);
         }
         return true;
     }
