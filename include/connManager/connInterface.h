@@ -11,10 +11,19 @@ class connInterface
     }
     connInterface(){};
 
-    virtual bool connect(connInfo info) = 0;
+    virtual ~connInterface() {}
+
+    virtual bool
+    connect(connInfo info) = 0;
     virtual bool disconnect() = 0;
-    virtual void onConnected() final {}
-    virtual void onDisconnected(int error) final {}
+    virtual void onConnected() final
+    {
+        // tell pool that there is a new connection
+    }
+    virtual void onDisconnected(int error) final
+    {
+        // tell pool that a connection is deleted
+    }
 
     connInfo getConnInfo() { return _info; }
 

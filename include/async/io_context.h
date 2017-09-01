@@ -6,10 +6,6 @@
 
 namespace IOService
 {
-    /*
-     * Derived from "C++ Extensions for Networking" Technical Specification n4625 (2016-11-28)
-     * http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/n4625.pdf
-     */
     class io_context
     {
     public:

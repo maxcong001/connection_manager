@@ -1,5 +1,6 @@
 #pragma once
 #include "connManager/util.h"
+#include "async/scheduler.h"
 template <typename DBConn>
 class connPool
 {
@@ -7,7 +8,13 @@ class connPool
     using connInfo = typename DBConn::conn_type_t;
     using DBConn_ptr_t = std::shared_ptr<DBConn>;
 
-    bool add_conn(connInfo info)
+    ~connPool()
+    {
+        // should delete all the connection.
+    }
+
+    bool
+    add_conn(connInfo info)
     {
         DBConn_ptr_t DBIns(new DBConn(info));
         if (!info.type)
