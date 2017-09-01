@@ -1,1 +1,0 @@
-/usr/bin/c++    -g2 -Wall -std=c++11 -fPIC -lpthread   CMakeFiles/_M_empty_example.dir/example.cpp.o  -o ../bin/M_empty_example -Wl,-rpath,/home/mcong/study/github/connection_manager/lib -rdynamic ../../lib/libM_empty.so.1.0.0 -lpthread 
