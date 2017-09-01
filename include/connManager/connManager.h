@@ -1,15 +1,18 @@
 #pragma once
 #include "connManager/util.h"
 #include "connManager/connPool.h"
-template <typename DBConn, typename connInfo>
+template <typename DBConn>
 class connManager
 {
   public:
-    using pool_ptr_t = std::shared_ptr<connPool<DBConn, connInfo>>;
+    using connInfo = typename DBConn::conn_type_t;
+    using pool_ptr_t = std::shared_ptr<connPool<DBConn>>;
 
-    int add_pool()
+    int
+    add_pool()
     {
-        pool_ptr_t pool(new connPool<DBConn, connInfo>());
+        pool_ptr_t pool(new connPool<DBConn>());
+
         for (auto p_info : infoList)
         {
             pool->add_conn(p_info);
@@ -41,9 +44,7 @@ class connManager
         return tmp;
     }
 
-    //typename connPool<DBConn, connInfo>::DBConn_ptr_t
-
-    auto get_conn() -> typename connPool<DBConn, connInfo>::DBConn_ptr_t
+    auto get_conn() -> typename connPool<DBConn>::DBConn_ptr_t
     {
         return get_pool()->get_conn();
     }
@@ -57,6 +58,7 @@ class connManager
         }
         return true;
     }
+
     bool del_conn(connInfo info)
     {
         infoList.erase(info);

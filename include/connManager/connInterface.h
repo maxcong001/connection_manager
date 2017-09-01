@@ -4,6 +4,7 @@ template <typename connInfo>
 class connInterface
 {
   public:
+    typedef connInfo conn_type_t;
     connInterface(connInfo info)
     {
         __LOG(debug, "new connection! " << (void *)this);
@@ -15,12 +16,14 @@ class connInterface
     virtual void onConnected() final {}
     virtual void onDisconnected(int error) final {}
 
+    connInfo getConnInfo() { return _info; }
+
     connInfo _info;
 };
 template <typename connInfo>
 class RedisConn : public connInterface<connInfo>
 {
-public:
+  public:
     RedisConn(connInfo info)
     {
         __LOG(debug, "new Redis connection! " << (void *)this);

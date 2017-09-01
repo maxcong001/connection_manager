@@ -1,9 +1,10 @@
 #pragma once
 #include "connManager/util.h"
-template <typename DBConn, typename connInfo>
+template <typename DBConn>
 class connPool
 {
   public:
+    using connInfo = typename DBConn::conn_type_t;
     using DBConn_ptr_t = std::shared_ptr<DBConn>;
 
     bool add_conn(connInfo info)
