@@ -41,7 +41,8 @@ class connManager
         return tmp;
     }
 
-    auto get_conn()->decltype(get_pool()->get_conn())
+    //typename connPool<DBConn, connInfo>::DBConn_ptr_t
+    auto get_conn() -> typename decltype(get_pool()->get_conn())
     {
         return get_pool()->get_conn();
     }
