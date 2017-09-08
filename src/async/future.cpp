@@ -1,5 +1,5 @@
 #include <async/future.h>
-
+#if 0
 namespace IOService
 {
     namespace detail
@@ -86,6 +86,7 @@ namespace IOService
     {
         if (2 == _future._shared_state.use_count())
         {
+
             throw std::future_error(std::make_error_code(std::future_errc::future_already_retrieved));
         }
         IOService::future<void> fut(_future._shared_state);
@@ -107,3 +108,4 @@ namespace IOService
     
     
 }
+#endif

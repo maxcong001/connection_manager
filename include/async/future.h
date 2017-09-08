@@ -1,5 +1,5 @@
 #pragma once
-
+#if 0
 #include <async/scheduler.h>
 
 #include <future>
@@ -627,3 +627,4 @@ namespace IOService
     }
 
 }
+#endif

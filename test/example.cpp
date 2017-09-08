@@ -24,21 +24,101 @@ int main()
 
 	connManager<RedisConn<ConnInfo>> *tmp_comm = new connManager<RedisConn<ConnInfo>>();
 
-	IOService::invoke_now([=] {
-		tmp_comm->add_pool();
-		tmp_comm->add_pool();
-		tmp_comm->add_pool();
-		tmp_comm->add_conn(info);
-		tmp_comm->add_conn(info);
-	});
+	tmp_comm->add_pool();
+	tmp_comm->add_pool();
+	tmp_comm->add_pool();
+	tmp_comm->add_conn(info);
+	tmp_comm->add_conn(info);
 
-	IOService::invoke_later([=] {
-		for (int i = 0; i < 100; i++)
+	// disconnect 3 connection
+	for (int i = 0; i < 5; i++)
+	{
+		auto tmp = tmp_comm->get_conn();
+		if (tmp == nullptr)
 		{
-			std::cout << tmp_comm->get_conn() << std::endl;
+			__LOG(error, "no conn in the list!!");
 		}
-	},
-							1000);
+		else
+		{
+			__LOG(warn, "got one conection, connection status is " << tmp->get_conn_state());
+			tmp->onDisconnected(1);
+		}
+	}
+#if 0
+	//	tmp_comm->del_conn(info);
+	for (int i = 0; i < 2; i++)
+	{
+		auto tmp = tmp_comm->get_conn();
+		if (tmp == nullptr)
+		{
+			__LOG(error, "no conn in the list!!");
+		}
+		else
+		{
+			std::cout << "got one conection, connection status is " << tmp->get_conn_state() << std::endl;
+			tmp->onDisconnected(1);
+		}
+	}
+#endif
+	//	now there is one connection
+	__LOG(error, "001!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+	{
+		auto tmp = tmp_comm->get_conn();
+		if (tmp == nullptr)
+		{
+			__LOG(error, "no conn in the list!!");
+		}
+		else
+		{
+			std::cout << "got one conection, connection status is " << tmp->get_conn_state() << std::endl;
+			//tmp->onDisconnected(1);
+		}
+	}
+
+	__LOG(error, "002!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+	{
+		auto tmp = tmp_comm->get_conn();
+		if (tmp == nullptr)
+		{
+			__LOG(error, "no conn in the list!!");
+		}
+		else
+		{
+			std::cout << "got one conection, connection status is " << tmp->get_conn_state() << std::endl;
+			tmp->onDisconnected(1);
+		}
+	}
+
+	
+	__LOG(error, "003!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+
+	for (int i = 0; i < 3; i++)
+	{
+		auto tmp = tmp_comm->get_conn();
+		if (tmp == nullptr)
+		{
+			__LOG(error, "no conn in the list!!");
+		}
+		else
+		{
+			std::cout << "got one conection, connection status is " << tmp->get_conn_state() << std::endl;
+			tmp->onDisconnected(1);
+		}
+	}
+
+	__LOG(warn, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+
+	auto tmp = tmp_comm->get_conn();
+	if (tmp == nullptr)
+	{
+		__LOG(error, "no conn in the list!!");
+	}
+	else
+	{
+		std::cout << "got one conection, connection status is " << tmp->get_conn_state() << std::endl;
+		tmp->onDisconnected(1);
+	}
+
 	// wait here
 	scheduler_thread.join();
 }
