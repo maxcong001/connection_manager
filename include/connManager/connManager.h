@@ -1,47 +1,31 @@
+/*
+ * Copyright (c) 2016-20017 Max Cong <savagecm@qq.com>
+ * this code can be found at https://github.com/maxcong001/connection_manager
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. The name of the author may not be used to endorse or promote products
+ *    derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 #pragma once
 #include "connManager/util.h"
-template <typename connInfo>
-class connInterface : public std::enable_shared_from_this<connInterface<connInfo>>
-{
-  public:
-    typedef connInfo conn_type_t;
-#if 0
-    connInterface(connInfo info)
-    {
-        conn_state = false;
-        connect(info);
-        __LOG(debug, "new connection in the connInterface! " << (void *)this);
-    }
-    connInterface()= delete;
 
-    virtual ~connInterface()
-    {
-        //auto bus = message_bus<connInterface<connInfo>>::instance();
-        //bus->remove_handler(std::string const &name, void *t);
-        disconnect();
-    }
-
-    // connect function should do the connect work and start heartbeat timer
-    virtual bool connect(connInfo info) = 0;// { return false; };
-    virtual bool disconnect() = 0;// { return false; };
-    // we need to stop the connection and heartbeat...etc to prepare for kill.
-    //virtual void stop() = 0;
-
-    // when the connection is connected or heartbeat success after heartbeat fail, should call this function
-    virtual void onConnected() = 0;             // final;
-    virtual void onDisconnected(int  debug) = 0; // final;
-
-    connInfo get_conn_info() { return _info; }
-    void set_pool_index(int index) { pool_index = index; }
-    int get_pool_index() { return pool_index; }
-    bool get_conn_state() { return conn_state; }
-    void set_conn_state(bool stat) { conn_state = stat; }
-
-    connInfo _info;
-    int pool_index;
-    bool conn_state;
-#endif
-};
 // connection pool
 template <typename DBConn>
 class connPool
@@ -78,6 +62,7 @@ class connPool
     std::list<DBConn_ptr_t> DBInsLocalList;
     std::list<DBConn_ptr_t> DBInsRemoteList;
 };
+
 // connmanager
 template <typename DBConn>
 class connManager
@@ -137,6 +122,7 @@ connManager<DBConn>::connManager()
         }
     }));
 }
+
 template <typename DBConn>
 connManager<DBConn>::~connManager()
 {
@@ -150,10 +136,12 @@ void connManager<DBConn>::on_unavaliable()
 {
     __LOG(warn, "on_unavaliable");
 }
+
 template <typename DBConn>
 void connManager<DBConn>::on_avaliable()
 {
 }
+
 template <typename DBConn>
 int connManager<DBConn>::add_pool()
 {
@@ -171,6 +159,7 @@ int connManager<DBConn>::add_pool()
     __LOG(debug, "add a new pool with id : " << id);
     return id;
 }
+
 template <typename DBConn>
 bool connManager<DBConn>::del_pool(int id)
 {
@@ -186,6 +175,7 @@ bool connManager<DBConn>::del_pool(int id)
     });
     return true;
 }
+
 template <typename DBConn>
 auto connManager<DBConn>::get_pool() -> typename connManager<DBConn>::pool_ptr_t
 {
@@ -201,6 +191,7 @@ auto connManager<DBConn>::get_pool() -> typename connManager<DBConn>::pool_ptr_t
         return nullptr;
     }
 }
+
 template <typename DBConn>
 auto connManager<DBConn>::get_conn() -> typename connPool<DBConn>::DBConn_ptr_t
 {
@@ -215,6 +206,7 @@ auto connManager<DBConn>::get_conn() -> typename connPool<DBConn>::DBConn_ptr_t
         return nullptr;
     }
 }
+
 template <typename DBConn>
 bool connManager<DBConn>::add_conn(connInfo info)
 {
@@ -225,6 +217,7 @@ bool connManager<DBConn>::add_conn(connInfo info)
     }
     return true;
 }
+
 template <typename DBConn>
 bool connManager<DBConn>::del_conn(connInfo info)
 {
@@ -242,7 +235,6 @@ template <typename DBConn>
 connPool<DBConn>::connPool()
 {
     auto bus = message_bus<connPool<DBConn>>::instance();
-
     int tmp = bus->register_handler(CONN_DEC, this, [this](void *objp, void *msgp) {
         auto conn_ptr_p = (DBConn *)msgp;
         auto obj_p = this;
@@ -279,6 +271,7 @@ connPool<DBConn>::connPool()
     this->set_conn_inc_id(tmp);
     __LOG(warn, "conn_inc_id is : " << get_conn_inc_id() << " conn_dec_id is : " << get_conn_dec_id());
 }
+
 template <typename DBConn>
 connPool<DBConn>::~connPool()
 {
@@ -301,25 +294,24 @@ bool connPool<DBConn>::add_conn(DBConn *conn)
     }
     else
     {
-
         __LOG(warn, "add one connection in the remote list");
         DBInsRemoteList.emplace_back(DBIns);
     }
     return true;
 }
+
 template <typename DBConn>
 bool connPool<DBConn>::add_conn(connInfo info)
 {
-    info.dump();
-
+    //info.dump();
     DBConn_ptr_t DBIns(new DBConn(info));
     DBIns->set_pool_index(_id);
     DBIns->set_conn_dec_id(this->get_conn_dec_id());
     DBIns->set_conn_inc_id(this->get_conn_inc_id());
     DBIns->connect(info);
-
     return true;
 }
+
 template <typename DBConn>
 bool connPool<DBConn>::del_conn(DBConn *conn)
 {
@@ -354,6 +346,7 @@ bool connPool<DBConn>::del_conn(DBConn *conn)
     __LOG(warn, "remove one connection, now local list size is : " << DBInsLocalList.size() << ". remote list size is : " << DBInsRemoteList.size());
     return true;
 }
+
 template <typename DBConn>
 bool connPool<DBConn>::del_conn(connInfo info)
 {
@@ -393,6 +386,7 @@ bool connPool<DBConn>::del_conn(connInfo info)
     __LOG(debug, "remove one connection, now local list size is : " << DBInsLocalList.size() << ". remote list size is : " << DBInsRemoteList.size());
     return true;
 }
+
 template <typename DBConn>
 auto connPool<DBConn>::get_conn() -> typename connPool<DBConn>::DBConn_ptr_t
 {
@@ -418,6 +412,48 @@ auto connPool<DBConn>::get_conn() -> typename connPool<DBConn>::DBConn_ptr_t
 }
 // conn interface
 #if 0
+template <typename connInfo>
+class connInterface : public std::enable_shared_from_this<connInterface<connInfo>>
+{
+  public:
+    typedef connInfo conn_type_t;
+
+    connInterface(connInfo info)
+    {
+        conn_state = false;
+        connect(info);
+        __LOG(debug, "new connection in the connInterface! " << (void *)this);
+    }
+    connInterface()= delete;
+
+    virtual ~connInterface()
+    {
+        //auto bus = message_bus<connInterface<connInfo>>::instance();
+        //bus->remove_handler(std::string const &name, void *t);
+        disconnect();
+    }
+
+    // connect function should do the connect work and start heartbeat timer
+    virtual bool connect(connInfo info) = 0;// { return false; };
+    virtual bool disconnect() = 0;// { return false; };
+    // we need to stop the connection and heartbeat...etc to prepare for kill.
+    //virtual void stop() = 0;
+
+    // when the connection is connected or heartbeat success after heartbeat fail, should call this function
+    virtual void onConnected() = 0;             // final;
+    virtual void onDisconnected(int  debug) = 0; // final;
+
+    connInfo get_conn_info() { return _info; }
+    void set_pool_index(int index) { pool_index = index; }
+    int get_pool_index() { return pool_index; }
+    bool get_conn_state() { return conn_state; }
+    void set_conn_state(bool stat) { conn_state = stat; }
+
+    connInfo _info;
+    int pool_index;
+    bool conn_state;
+
+};
 // when the connection is connected or heartbeat success after heartbeat fail, should call this function
 template <typename connInfo>
 void connInterface<connInfo>::onConnected()

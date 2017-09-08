@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2016-20017 Max Cong <savagecm@qq.com>
+ * this code can be found at https://github.com/maxcong001/connection_manager
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
@@ -50,6 +51,7 @@ class id_center
   private:
     std::atomic<int> uniqueID_atomic;
 };
+
 template <typename OBJ>
 class message_bus
 {
@@ -81,7 +83,6 @@ class message_bus
         {
             std::lock_guard<std::mutex> lck(mtx);
         }
-
         (this->invokers_).emplace(name, std::make_tuple(f, t, id));
         __LOG(debug, "regist handler for " << name);
     }
@@ -93,11 +94,9 @@ class message_bus
         {
             std::lock_guard<std::mutex> lck(mtx);
         }
-
         auto it = invokers_.begin();
         while (it != invokers_.end())
         {
-            // Check if key's first character is F
             if (!name.compare(it->first))
             {
                 auto save = it;
@@ -105,7 +104,6 @@ class message_bus
                 handler_f cb;
                 void *obj;
                 int _id;
-
                 std::tie(cb, obj, _id) = it->second;
                 __LOG(debug, "find topic : " << it->first << " id is : " << id << " _id is : " << _id);
                 if (id == _id)
@@ -125,7 +123,6 @@ class message_bus
 
     void remove_handler(std::string const name, void *t, int id)
     {
-
         __LOG(warn, "remove_handler " << name);
         if (bus_thread_id != std::this_thread::get_id())
         {
@@ -134,8 +131,6 @@ class message_bus
         auto it = invokers_.begin();
         while (it != invokers_.end())
         {
-
-            // Check if key's first character is F
             if (!name.compare(it->first))
             {
                 auto save = it;
@@ -154,63 +149,10 @@ class message_bus
                 it++;
             }
         }
-#if 0
-        auto tmp = invokers_;
-        auto it = tmp.equal_range(name);
-
-        for (auto it = invokers_.begin(); it != invokers_.end(); it++)
-        {
-            if (!name.compare(it->first))
-            {
-                if (std::get<1>(it->second) == t)
-                {
-                    invokers_.erase(it);
-                }
-            }
-        }
-#endif
-#if 0
-        auto range = invokers_.equal_range(name);
-        std::remove_if(range.first, range.second, [&](const std::unordered_multimap<std::string, std::tuple<handler_f, void *>>::value_type &item) {
-            if (!name.compare(item.first))
-            {
-                if (std::get<1>(item.second) == t)
-                {
-                    return true;
-                }
-            }
-            return false;
-        });
-#endif
     }
 
   private:
     std::unordered_multimap<std::string, std::tuple<handler_f, void *, int>> invokers_;
-    // std::unordered_multimap<std::string, std::tuple<handler_f, void *>> tmp_invoker_;
     std::mutex mtx;
     std::thread::id bus_thread_id;
 };
-#if 0
- int main()
- {
-     int a = 0;
-#if 0
-     message_bus<int> bus;
-   
- 
-     bus.register_handler("test", &a, [](void *objp, void *msgp) { std::cout << "objp is : " << (void *)objp << " msgp is : " << (void *)msgp << std::endl; });
-     bus.register_handler("test", &a, [](void *objp, void *msgp) { std::cout << "objp isxxxx : " << (void *)objp << " msgp is : " << (void *)msgp  << std::endl; });
-     bus.call("test", (void *)0);
- 
-     bus.remove_handler("test", &a);
-     bus.call("test", (void *)0);
-#endif
-     auto bus = message_bus<int>::instance();
-     bus->register_handler("test", &a, [](void *objp, void *msgp) { std::cout << "objp is : " << (void *)objp << " msgp is : " << (void *)msgp << std::endl; });
-     bus->register_handler("test", &a, [](void *objp, void *msgp) { std::cout << "objp isxxxx : " << (void *)objp << " msgp is : " << (void *)msgp  << std::endl; });
-     bus->call("test", (void *)0);
- 
-     bus->remove_handler("test", &a);
-     bus->call("test", (void *)0);
- }
-#endif

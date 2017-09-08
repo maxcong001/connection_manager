@@ -20,9 +20,9 @@ SET(EXAMPLE_BINARY ${PROJECT_NAME}_example)
 # set compiler flags
 IF(ENABLE_TEST)
     # disable optimization for testing version
-    set(CCXX_FLAGS "-g2 -Wall -std=c++17 -fPIC -lpthread")
+    set(CCXX_FLAGS "-g2 -Wall -std=c++11 -fPIC -lpthread")
 ELSE()
-    set(CCXX_FLAGS "-O2 -Wall -std=c++17 -fPIC -lpthread")
+    set(CCXX_FLAGS "-O2 -Wall -std=c++11 -fPIC -lpthread")
 ENDIF()
 
 #for 32-bit build
@@ -70,3 +70,4 @@ ADD_CUSTOM_TARGET(cleanup
 	WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
 	COMMENT "Remove all temp files"
 )
+
